@@ -1,13 +1,36 @@
-.vscode
-.venv
 *.pyc
-__pycache__
-env3.7
-env3.6
-dist
-.mypy_cache
-.idea
-site
+
+# Packages
+*.egg
+!/tests/**/*.egg
+/*.egg-info
+/dist/*
+build
+_build
+.cache
+*.so
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
 .coverage
-htmlcov
+.tox
 .pytest_cache
+
+.DS_Store
+.idea/*
+.python-version
+.vscode/*
+
+/test.py
+/test_*.*
+
+/setup.cfg
+MANIFEST.in
+/setup.py
+
+.venv
+/releases/*
+pip-wheel-metadata
+/poetry.toml

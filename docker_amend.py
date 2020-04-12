@@ -7,6 +7,7 @@ from typing import List, Optional
 
 import docker
 import typer
+from typer.models import Required
 
 echo = partial(typer.echo, err=True)
 
@@ -14,8 +15,8 @@ client = docker.from_env()
 
 
 def main(
-    image_name: str,
-    command: List[str],
+    image_name: str = typer.Argument(Required, metavar="IMAGE"),
+    command: List[str] = typer.Argument(Required),
     tag: Optional[str] = typer.Option(
         None,
         "-t",
@@ -30,24 +31,25 @@ def main(
         metavar="SOURCE:TARGET",
         help="Bind mount a volume (assumes --no-pwd-volume)",
     ),
-    no_cwd_volume: bool = typer.Option(False, help="Do not mount cwd as a volume"),
+    no_cwd_volume: bool = typer.Option(
+        False, "--no-cwd-volume", help="Do not mount cwd as a volume"
+    ),
 ):
     """
     Amend IMAGE by running COMMAND in a separate layer.
     """
 
-    if not no_cwd_volume:
-        working_dir = client.images.get(image_name).attrs["Config"]["WorkingDir"]
-        if working_dir == "":
-            echo(f"WorkingDir is not set for {image_name}, not mounting cwd")
-        else:
-            volumes = [f"{getcwd()}:{working_dir}"]
-
     volumes = {
         source: {"bind": bind, "mode": "rw"}
         for source, bind in (volume.split(":", 1) for volume in volumes)
     }
-    print(volumes)
+
+    if not no_cwd_volume and getcwd() not in volumes:
+        working_dir = client.images.get(image_name).attrs["Config"]["WorkingDir"]
+        if working_dir == "":
+            echo(f"WorkingDir is not set for {image_name}, not mounting cwd")
+        else:
+            volumes[getcwd()] = {"bind": working_dir, "mode": "rw"}
 
     container = client.containers.create(
         image_name, command, volumes=volumes, detach=True
@@ -66,21 +68,6 @@ def main(
             f"Exited with code {status_code}, leaving {tag or image_name} at old version"
         )
         container.remove()
-
-    ## Alternate implementation:
-    # dockerfile = BytesIO(
-    #     f"""
-    #     FROM {image_name}
-    #     RUN {json.dumps(command)}
-    #     """.encode()
-    # )
-
-    # image_name, logs = client.images.build(
-    #     path=getcwd(), fileobj=dockerfile, tag=tag or image_name,
-    # )
-
-    # if export_files:
-    #     echo("Exporting updated files from the image...")
 
 
 def _run():
