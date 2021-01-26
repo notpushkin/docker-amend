@@ -10,7 +10,7 @@ license = "ISC"
 [tool.poetry.dependencies]
 python = "^3.7"
 docker = "^4.2.0"
-typer = "^0.1.1"
+typer = "^0.3.2"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.780"
