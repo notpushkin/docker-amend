@@ -13,7 +13,12 @@ docker = "^4.2.0"
 typer = "^0.1.1"
 
 [tool.poetry.dev-dependencies]
-black = "^19.10b0"
+mypy = "^0.780"
+wemake-python-styleguide = "^0.14.0"
+add-trailing-comma = "^2.0.1"
+autopep8 = "^1.5.3"
+isort = "^4.3.21"
+rope = "^0.17.0"
 
 [tool.poetry.scripts]
 docker-amend = 'docker_amend:_run'

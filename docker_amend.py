@@ -32,14 +32,14 @@ def _parse_volumes(volumes: Iterable[str]) -> List[Tuple[str, dict]]:
 
 
 def main(
-    image_name: str = typer.Argument(Required, metavar="IMAGE"),
+    image_name: str = typer.Argument(Required, metavar="IMAGE[:VERSION]"),
     command: List[str] = typer.Argument(Required),
     tag: Optional[str] = typer.Option(
         None,
         "-t",
         "--tag",
         metavar="NAME[:VERSION]",
-        help="Use a different name/tag for the resulting image",
+        help="Use a different name/tag for the resulting image.",
     ),
     volumes: List[str] = typer.Option(
         None,
@@ -63,14 +63,16 @@ def main(
         tag = image_name
 
     if not no_cwd_volume and getcwd() not in volumes:
-        working_dir = client.images.get(image_name).attrs["Config"]["WorkingDir"]
+        working_dir = client.images.get(
+            image_name,
+        ).attrs["Config"]["WorkingDir"]
         if working_dir == "":
             echo(f"WorkingDir is not set for {image_name}, not mounting cwd")
         else:
             volumes[getcwd()] = {"bind": working_dir, "mode": "rw"}
 
     container = client.containers.create(
-        image_name, command, volumes=volumes, detach=True
+        image_name, command, volumes=volumes, detach=True,
     )
     container.start()
     for line in container.attach(stdout=True, stderr=True, stream=True, logs=True):
