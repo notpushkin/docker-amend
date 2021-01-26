@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "docker-amend"
-version = "0.1.1"
+version = "0.1.2"
 description = "Amend Docker images by running a command in a separate layer."
 homepage = "https://gitlab.com/notpushkin/docker-amend"
 readme = "README.md"
